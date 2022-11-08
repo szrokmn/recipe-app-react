@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import Flex from '../globalStyles/Flex.style';
+import {Flex} from '../globalStyles/Flex.style';
 
 export const HeaderContainer = styled(Flex)`
   background: ${({ theme }) => theme.colors.mainColor};

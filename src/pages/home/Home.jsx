@@ -1,35 +1,55 @@
-import React from "react";
-import "./Header.style";
-import { Button, FoodInput, FormContainer, HeaderContainer, MainHeader, Select } from "./Header.style";
+import React, { useState } from "react";
+import axios from "axios";
+import Header from "../../components/header/Header";
+import Cards from "../../components/cards/Cards";
+import { HeaderText, HomeImg, ImgDiv } from "./Home.style";
+import homeSvg from "../../assets/home.svg";
 
-const Header = ({ setQuery, setSelectedMeal, mealType, getData }) => {
- 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    getData()
-  }
+const Home = () => {
+  const APP_ID =process.env.REACT_APP_APP_ID
+  const APP_KEY =process.env.REACT_APP_APP_KEY
+  
+  const [query, setQuery] = useState("egg");
+  const [selectedMeal, setSelectedMeal] = useState("breakfast");
+  const [recipes, setRecipes] = useState(null);
+  const mealType = ["Breakfast", "Lunch", "Dinner", "Snack", "Teatime"];
+
+  const url = `https://api.edamam.com/search?q=${query}&app_id=${APP_ID}&app_key=${APP_KEY}&mealType=${selectedMeal}`;
+
+  const getData = async () => {
+    if (query) {
+      try {
+        const { data } = await axios(url);
+        setRecipes(data.hits);
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      alert("Fill the Form");
+    }
+  };
+  console.log(recipes);
+
+  // useEffect(() => {
+  //   getData();
+  // }, []);
 
   return (
-    <HeaderContainer>
-      <MainHeader>Recipe App</MainHeader>
+    <div>
+      <Header setQuery={setQuery} setSelectedMeal={setSelectedMeal} mealType={mealType} getData={getData}/>
 
-      <FormContainer onSubmit={handleSubmit}>
-        <FoodInput type="text" placeholder="Search" onChange={(e) => setQuery(e.target.value)} />
+      {!recipes && (
+        <ImgDiv>
+          <HomeImg src={homeSvg} />
+        </ImgDiv>
+      )}
 
-        <Button type="submit">SEARCH</Button>
+      {recipes?.length === 0 && (
+        <HeaderText>The Food can not be found</HeaderText>
+      )}
 
-        <Select name="mealType" id="mealType" onChange={(e) => setSelectedMeal(e.target.value)}>
-          {mealType.map((meal, index) => {
-            return (
-              <option key={index} value={meal}>
-                {meal}
-              </option>
-            );
-          })}
-        </Select>
-      </FormContainer>
-    </HeaderContainer>
+      {recipes?.length > 0 && <Cards recipes={recipes} />}
+    </div>
   );
 };
-
-export default Header;
+export default Home;
